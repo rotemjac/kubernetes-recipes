@@ -1,0 +1,18 @@
+version: '3'
+services:
+    nginx-fe:
+      build: "./nginx"
+      ports:
+        - "8080:80"
+#      volumes:
+#      - ./default.conf:/etc/nginx/conf.d/default.conf
+#      - ./api_proxy.conf:/etc/nginx/conf.d/api_proxy.conf
+      depends_on:
+      - nodejs-be
+
+    nodejs-be:
+      build: './nodejs'
+      ports:
+      - '4001:4000'
+      environment:
+      - PORT=4000

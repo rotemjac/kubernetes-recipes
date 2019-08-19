@@ -1,0 +1,54 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: syslog-client
+  labels:
+    app: syslog-client-app
+    tier: syslog
+spec:
+  selector:
+    app: syslog-client-app
+  ports:
+  - name: tcp-syslog
+    port: 514
+    targetPort: 514
+    protocol: TCP
+  - name: udp-syslog
+    port: 514
+    targetPort: 514
+    protocol: UDP
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: syslog-client
+  labels:
+    app: syslog-client-app
+    tier: syslog
+spec:
+  selector:
+    matchLabels:
+      app: syslog-client-app
+      track: stable
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: syslog-client-app
+        tier: syslog
+        track: stable
+    spec:
+      volumes:
+      - name: syslog-config
+        configMap:
+          name: syslog-client-config
+
+      containers:
+      - name: syslog-ng-fe
+        image: basic-syslog-service
+        imagePullPolicy: Never
+        volumeMounts:
+        - name: syslog-config
+          mountPath: /etc/syslog-ng/syslog-ng.conf
+          subPath: "syslog-ng.conf"

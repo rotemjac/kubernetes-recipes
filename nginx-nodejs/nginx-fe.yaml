@@ -1,0 +1,43 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: nginx-fe
+  labels:
+    app: nginx-nodejs-app
+spec:
+  selector:
+    app: nginx-nodejs-app
+    tier: frontend
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: http
+  type : LoadBalancer
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-fe
+  labels:
+    app: nginx-nodejs-app
+spec:
+  selector:
+    matchLabels:
+      app: nginx-nodejs-app
+      tier: frontend
+      track: stable
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: nginx-nodejs-app
+        tier: frontend
+        track: stable
+    spec:
+      containers:
+      - name: nginx-fe
+        image: "apps_nginx-fe"
+        imagePullPolicy : Never
+        ports:
+        - name: http
+          containerPort: 80

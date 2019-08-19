@@ -1,0 +1,98 @@
+---
+ansible_post_tasks: null
+ansible_pre_tasks: null
+cert_prefix: https
+config:
+  baked: default.yml
+  defaults_dir: /tmp/defaults
+  env:
+    headers: null
+    var: SPLUNK_DEFAULTS_URL
+    verify: true
+  host:
+    headers: null
+    url: null
+    verify: true
+  max_delay: 60
+  max_retries: 3
+  max_timeout: 1200
+hide_password: false
+retry_num: 50
+shc_bootstrap_delay: 30
+splunk:
+  admin_user: admin
+  allow_upgrade: true
+  app_paths:
+    default: /opt/splunk/etc/apps
+    deployment: /opt/splunk/etc/deployment-apps
+    httpinput: /opt/splunk/etc/apps/splunk_httpinput
+    idxc: /opt/splunk/etc/master-apps
+    shc: /opt/splunk/etc/shcluster/apps
+  enable_service: false
+  exec: /opt/splunk/bin/splunk
+  group: splunk
+  hec_disabled: 0
+  hec_enableSSL: 1
+  hec_port: 8088
+  hec_token: 81bad52e-548b-46a9-acf7-175004f9f66b
+  home: /opt/splunk
+  http_enableSSL: 0
+  http_enableSSL_cert: null
+  http_enableSSL_privKey: null
+  http_enableSSL_privKey_password: null
+  http_port: 8000
+  idxc:
+    enable: false
+    label: idxc_label
+    replication_factor: 3
+    replication_port: 9887
+    search_factor: 3
+    secret: VI+NnvidJnhoNT4obPTod5zlLVN4IeQQ
+  ignore_license: false
+  license_download_dest: /tmp/splunk.lic
+  multisite_replication_factor_origin: 3
+  multisite_replication_factor_total: 3
+  multisite_search_factor_origin: 3
+  multisite_search_factor_total: 3
+  nfr_license: /tmp/nfr_enterprise.lic
+  opt: /opt
+  password: BX3MnUJXnIsA3CWoMMZX+TaVT1f2Zglr
+  pid: /opt/splunk/var/run/splunk/splunkd.pid
+  root_endpoint: null
+  s2s_enable: true
+  s2s_port: 9997
+  search_head_cluster_url: null
+  secret: null
+  shc:
+    enable: false
+    label: shc_label
+    replication_factor: 3
+    replication_port: 9887
+    secret: 6He9C9IjQya27R/Lb8Rtot5QsfhmHY9U
+  smartstore: null
+  svc_port: 8089
+  tar_dir: splunk
+  user: splunk
+  wildcard_license: false
+  # ------- Here we go... -------- #
+  conf:
+    inputs:
+      directory: /opt/splunk/etc/system/local
+      content:
+        splunktcp://9997:
+          disabled : 0
+          index : syslog-index
+    indexes:
+      directory: /opt/splunk/etc/system/local
+      content:
+        syslog-index:
+          server: splunk-receiver:9997
+          frozenTimePeriodInSecs: 2419200
+          maxDataSize: 100
+          thawedPath: $SPLUNK_DB/syslog-index/thaweddb
+          coldPath: $SPLUNK_DB/syslog-index/colddb
+          homePath: $SPLUNK_DB/syslog-index/db
+
+  # ------------------------------ #
+splunk_home_ownership_enforcement: true
+

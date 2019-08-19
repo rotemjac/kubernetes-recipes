@@ -1,0 +1,62 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: splunk-forwarder
+  labels:
+    app: splunk-forwarder-app
+    tier: splunk
+spec:
+  selector:
+    app: splunk-forwarder-app
+  ports:
+  - name: to-indexer
+    nodePort: 31234
+    port: 9997
+    targetPort: 9997
+    protocol: TCP
+  type : NodePort
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: splunk-forwarder
+  labels:
+    app: splunk-forwarder-app
+    tier: splunk
+spec:
+  selector:
+    matchLabels:
+      app: splunk-forwarder-app
+      track: stable
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: splunk-forwarder-app
+        tier: splunk
+        track: stable
+    spec:
+      volumes:
+      - name: configmap-forwarder
+        configMap:
+          name: splunk-forwarder-config
+
+      containers:
+      - name: splunk-forwarder
+        image: splunk/splunk:latest
+        imagePullPolicy : Always
+        env:
+        - name: SPLUNK_START_ARGS
+          value: --accept-license --answer-yes
+
+        - name: SPLUNK_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: splunk-forwarder-secret
+              key: password
+
+        volumeMounts:
+        - name: configmap-forwarder
+          mountPath: /tmp/defaults/default.yml
+          subPath: "default.yml"

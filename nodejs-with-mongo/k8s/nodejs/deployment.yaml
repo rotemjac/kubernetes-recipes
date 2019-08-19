@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webserver-deployment
+  labels:
+    app: webserver
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: webserver
+  template:
+    metadata:
+      name: webserver
+      labels:
+        app: webserver
+    spec:
+      terminationGracePeriodSeconds: 30
+      containers:
+      - name: my-nodejs-server
+        image: my-nodejs-image:latest
+        imagePullPolicy: "Never"
+        ports:
+        - containerPort: 8080

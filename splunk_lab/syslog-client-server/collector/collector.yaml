@@ -1,0 +1,65 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: syslog-collector
+  labels:
+    app: syslog-collector-app
+    tier: syslog
+spec:
+  selector:
+    app: syslog-collector-app
+  ports:
+  - name: tcp-syslog
+    port: 514
+    targetPort: 514
+    protocol: TCP
+  - name: udp-syslog
+    port: 514
+    targetPort: 514
+    protocol: UDP
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: syslog-collector
+  labels:
+    app: syslog-collector-app
+    tier: syslog
+spec:
+  selector:
+    matchLabels:
+      app: syslog-collector-app
+      track: stable
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: syslog-collector-app
+        tier: syslog
+        track: stable
+    spec:
+
+      volumes:
+      - name: syslog-config
+        configMap:
+          name: syslog-collector-config
+
+      # If testing the syslog tier as standalone - comment this
+      - name: syslog-logs
+        persistentVolumeClaim:
+          claimName: 'logs-claim'
+
+      containers:
+      - name: syslog-ng-collector
+        image: basic-syslog-service
+        imagePullPolicy: Never
+
+        volumeMounts:
+        - name: syslog-config
+          mountPath: /etc/syslog-ng/syslog-ng.conf
+          subPath: "syslog-ng.conf"
+
+        # If testing the syslog tier as standalone - comment this
+        - name: syslog-logs
+          mountPath: /var/log/syslog-ng

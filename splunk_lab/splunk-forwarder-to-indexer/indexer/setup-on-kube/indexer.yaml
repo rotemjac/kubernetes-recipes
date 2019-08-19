@@ -1,0 +1,68 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: splunk-indexer
+  labels:
+    app: splunk-indexer-app
+    tier: splunk
+spec:
+  selector:
+    app: splunk-indexer-app
+  ports:
+  - name: ui
+    nodePort: 31234
+    port: 8000
+    targetPort: 8000
+    protocol: TCP
+  - name: from-forwarder
+    port: 9997
+    targetPort: 9997
+    protocol: TCP
+  type : NodePort
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: splunk-indexer
+  labels:
+    app: splunk-indexer-app
+    tier: splunk
+spec:
+  selector:
+    matchLabels:
+      app: splunk-indexer-app
+      track: stable
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: splunk-indexer-app
+        tier: splunk
+        track: stable
+    spec:
+      volumes:
+      - name: configmap-indexer-inputs
+        configMap:
+          name: splunk-indexer-config
+
+      containers:
+      - name: splunk-indexer
+        image: splunk/splunk:latest
+        imagePullPolicy : Always
+        env:
+        - name: SPLUNK_START_ARGS
+          value: --accept-license --answer-yes
+
+        - name: SPLUNK_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: splunk-secret
+              key: password
+
+        volumeMounts:
+        - name: configmap-indexer-inputs
+          mountPath: /tmp/defaults/default.yml
+          subPath: "default.yml"
+
+

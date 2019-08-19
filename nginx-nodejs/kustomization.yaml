@@ -1,0 +1,3 @@
+resources:
+- nodejs-be.yaml
+- nginx-fe.yaml

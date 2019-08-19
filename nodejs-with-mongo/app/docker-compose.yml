@@ -1,0 +1,16 @@
+version: '3'
+services:
+  nodejs-server:
+    build: './nodeJS'
+    ports:
+    - "8080:3000"
+    environment:
+    - PORT=3000
+  mongo:
+    image: mongo
+    ports:
+    - "27017:27017"
+    volumes:
+    - data-volume:/data/db
+volumes:
+  data-volume:

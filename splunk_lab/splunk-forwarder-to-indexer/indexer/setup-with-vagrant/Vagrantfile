@@ -1,0 +1,76 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+require 'getoptlong'
+opts = GetoptLong.new(
+  [ '--indexer-ip', GetoptLong::REQUIRED_ARGUMENT ],
+  [ '--password', GetoptLong::REQUIRED_ARGUMENT ],
+  [ '--force',    GetoptLong::OPTIONAL_ARGUMENT ]
+)
+IP=''
+SPLUNK_PASSWORD=''
+opts.each do |opt, arg|
+  case opt
+    when '--indexer-ip'
+      IP=arg
+    when '--password'
+      SPLUNK_PASSWORD=arg
+  end
+end
+
+
+SPLUNK_DEB   = "splunk-7.3.1-bd63e13aa157-linux-2.6-amd64.deb"
+SPLUNK_HOME  = "/opt/splunk"
+SPLUNK_BIN   = "#{SPLUNK_HOME}/bin/splunk"
+
+# provision/data/*.log are one-shot loaded to this index
+SPLUNK_INDEX = "metrics"
+
+
+
+Vagrant.configure("2") do |config|
+
+  config.vm.box = "ubuntu/bionic64"
+  config.vm.box_url = "/home/rotem/workspaces/playground/vagrant/boxes/ubuntu_bionic64.box"
+
+  config.vm.network "private_network", ip: "#{IP}"
+  
+  config.vm.provider "virtualbox" do |v|
+    v.name   = "Splunk-receiver"
+    v.memory = "2048"
+    v.cpus   = "2"
+  end
+
+  config.vm.provision "Bootstrap", type: "shell" do |s|
+    s.privileged = false
+    s.name ="Splunk startup"
+    s.path = "scripts/init.sh"
+    s.env = {
+      :DEB_PATH         => "/vagrant/lib/#{SPLUNK_DEB}",
+      :SPLUNK_BIN       => "#{SPLUNK_BIN}",
+      :SPLUNK_HOME      => "#{SPLUNK_HOME}",
+      :SPLUNK_PASSWORD  => "#{SPLUNK_PASSWORD}"
+    }
+  end
+
+  ## Because of this error (when trying to copy directly to etc/...): https://stackoverflow.com/questions/54067192/vagrant-config-vm-provision-does-not-allow-me-to-copy-a-file-to-etc-nginx-conf
+  config.vm.provision "file", source: "././../../indexer/config/inputs.conf",  destination: "/tmp/inputs.conf"
+  config.vm.provision "file", source: "././../../indexer/config/indexes.conf", destination: "/tmp/indexes.conf"
+
+  config.vm.provision "shell",  inline: "mv /tmp/inputs.conf  #{SPLUNK_HOME}/etc/system/local/inputs.conf"
+  config.vm.provision "shell",  inline: "mv /tmp/indexes.conf #{SPLUNK_HOME}/etc/system/local/indexes.conf"
+
+  config.vm.provision "Check start", type: "shell" do |s|
+        s.name ="Splunk check start"
+        s.path = "scripts/restart.sh"
+        s.env = {
+          :SPLUNK_BIN => "#{SPLUNK_BIN}",
+        }
+  end
+
+
+
+  config.vm.provision "Restart", type: "shell" , inline: "sudo #{SPLUNK_BIN} restart"
+
+
+end

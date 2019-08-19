@@ -1,0 +1,47 @@
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: mongo
+spec:
+  serviceName: "mongo"
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        role: mongo
+        environment: test
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+      - name: mongo
+        image: mongo
+        command:
+        - mongod
+        - "--replSet"
+        - rs0
+        - "--bind_ip"
+        - 0.0.0.0
+        - "--smallfiles"
+        - "--noprealloc"
+        ports:
+        - containerPort: 27017
+        volumeMounts:
+        - name: mongo-persistent-storage
+          mountPath: /data/db
+        resources:
+          limits:
+            cpu: 500m
+            memory: 512Mi
+          requests:
+            cpu: 400m
+            memory: 256Mi
+  volumeClaimTemplates:
+  - metadata:
+      name: mongo-persistent-storage
+      persistentVolumeClaim:
+        claimName: fast
+    spec:
+      accessModes: [ "ReadWriteMany" ]
+      resources:
+        requests:
+          storage: 10Gi
