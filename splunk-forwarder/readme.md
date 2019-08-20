@@ -1,4 +1,3 @@
-
 Start with: <br/>
 ```./_start_script```
 
@@ -12,16 +11,15 @@ Will appear as: <br/>
 
 And check splunk status with: <br/>
 ```docker exec -u root <containerID>  /opt/splunk/bin/splunk status```
-<br/>
+
 
 -----------
+
 Debug with: <br/>
 ```./_view_all_script```
 
 Please notice that all resources are created under namespace of ```splunk-forwarder-standalone-ns```
 so don't forget to append ``` --namespace=splunk-forwarder-standalone-ns``` as a postfix to all queries (get, describe, logs etc').
-
-<br/>
 
 ------------
 
