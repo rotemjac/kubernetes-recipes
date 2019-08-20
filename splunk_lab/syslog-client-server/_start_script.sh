@@ -9,8 +9,8 @@ COLLECTOR_PATH=./collector/syslog-ng.conf
 
 
 #1. Create config maps again
-kubectl create configmap $CLIENT_NAME    --from-file=$CLIENT_PATH    --namespace=logs-ns --output yaml | tee ./client/$CLIENT_NAME-map.yaml
-kubectl create configmap $COLLECTOR_NAME --from-file=$COLLECTOR_PATH --namespace=logs-ns --output yaml | tee ./collector/$COLLECTOR_NAME-map.yaml
+kubectl create configmap $CLIENT_NAME    --from-file=$CLIENT_PATH    --namespace=logs-ns #--output yaml | tee ./client/$CLIENT_NAME-map.yaml
+kubectl create configmap $COLLECTOR_NAME --from-file=$COLLECTOR_PATH --namespace=logs-ns #--output yaml | tee ./collector/$COLLECTOR_NAME-map.yaml
 
 
 #2. Bring up pods, deployments, services...

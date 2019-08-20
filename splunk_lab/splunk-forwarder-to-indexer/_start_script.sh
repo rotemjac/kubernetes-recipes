@@ -8,6 +8,7 @@ FORWARDER_PATH=./forwarder/config/default.yml
 kubectl create configmap $FORWARDER_NAME --from-file=$FORWARDER_PATH --namespace=$NAMESPACE_NAME # --output yaml | tee ./forwarder/$FORWARDER_NAME-map.yaml
 
 #2. Create secret
+echo -e "${Light_Blue}"
 echo "------------------------------------------------------------------------------------------"
 echo "Please insert a password for both Splunk forwarder and indexer (at least 8 characters):"
 echo "-----------------------------------------------------------------------------------------"
@@ -38,6 +39,7 @@ echo "2) In a separate VM (requires Vagrant)"
 read INDEXER_SETUP
 if [ $INDEXER_SETUP -eq 1 ]
     then
+      echo -e "${Light_Red}"
       echo "----------------------------------------"
       echo "You have chosen to run Splunk indexer inside the cluster"
       echo "please consider to upgrade cluster resources - see the readme.md."
@@ -50,6 +52,7 @@ if [ $INDEXER_SETUP -eq 1 ]
       kubectl create configmap $INDEXER_NAME   --from-file=$INDEXER__CONFIG_PATH   --namespace=logs-ns # --output yaml | tee $INDEXER_PATH/$INDEXER_NAME-map.yaml
       kubectl apply -f $INDEXER_PATH   --namespace=logs-ns
 
+      echo -e "${Green}"
       echo "Please open your browser at http://<Node-IP>:31234 to view the logs on the Splunk Indexer"
 
     else
@@ -80,9 +83,11 @@ if [ $INDEXER_SETUP -eq 1 ]
       #sed "s/{{splunk-indexer-remove-postfix}}/splunk-indexer/g" ./forwarder/forwarder.yaml
 
       cd indexer/setup-with-vagrant && vagrant --indexer-ip=$INDEXER_IP --password=$PASSWORD up && cd -
-
+      echo -e "${Green}"
       echo "Please open your browser at http://$INDEXER_IP:8000 to view the logs on the Splunk Indexer"
 fi
 
 #4. Bring up pods, deployments, services, configmaps ...
 kubectl apply -f forwarder --namespace=$NAMESPACE_NAME
+
+echo -e "${NC}"
