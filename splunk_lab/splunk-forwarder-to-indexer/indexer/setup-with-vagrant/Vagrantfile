@@ -31,7 +31,9 @@ SPLUNK_INDEX = "metrics"
 Vagrant.configure("2") do |config|
 
   config.vm.box = "ubuntu/bionic64"
-  config.vm.box_url = "/home/rotem/workspaces/playground/vagrant/boxes/ubuntu_bionic64.box"
+
+  #If you have downloaded the box to your machine - specify the location
+  #config.vm.box_url = "<path-to>/vagrant/boxes/ubuntu_bionic64.box"
 
   config.vm.network "private_network", ip: "#{IP}"
   

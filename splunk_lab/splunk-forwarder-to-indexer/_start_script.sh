@@ -62,6 +62,7 @@ if [ $INDEXER_SETUP -eq 1 ]
 
       INDEXER_IP="192.168.99.108"
 
+      echo -e "${Red}"
       echo "As first step - uncomment the 'hostAliases' field in the forwarder/forwarder.yaml file"
       sleep 3
       echo "Are you using minikube?"
@@ -72,6 +73,10 @@ if [ $INDEXER_SETUP -eq 1 ]
       then
             echo "The IP is already set UP (192.168.99.108) for based on the minikube gateway (192.168.99.1/24)"
       else
+            echo "NOTICE - You have to download the Splunk enterprise package from https://www.splunk.com/en_us/download/sem.html."
+            echo "Place it instead of this file: splunk-forwarder-to-indexer/indexer/setup-with-vagrant/lib/ADD_splunk-7.3.1-bd63e13aa157-linux-2.6-amd64.deb_IN_HERE"
+            echo "Press Enter when finished..."
+            read FINISH_DOWNLOAD_PACKAGE
             echo "Please change the ip address under the 'hostAliases' field in the forwarder/forwarder.yaml file"
             echo "The IP need to be inside the broadcast domain of your K8s cluster on your host."
             echo "Please paste the IP here:"
